@@ -1,4 +1,4 @@
-# server/models.py
+# server/model,SerializerMixins.py
 
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
@@ -14,8 +14,9 @@ metadata = MetaData(
 db = SQLAlchemy(metadata=metadata)
 
 
-class Game(db.Model):
+class Game(db.Model, SerializerMixin):
     __tablename__ = "games"
+    serializer_rules = ("-reviews.game",)
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, unique=True)
@@ -31,8 +32,12 @@ class Game(db.Model):
         return f"<Game {self.title} for {self.platform}>"
 
 
-class Review(db.Model):
+class Review(db.Model, SerializerMixin):
     __tablename__ = "reviews"
+    serializer_rules = (
+        "-game.review",
+        "-user.review",
+    )
 
     id = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Integer)
@@ -50,8 +55,9 @@ class Review(db.Model):
         return f"<Review ({self.id}) of {self.game}: {self.score}/10>"
 
 
-class User(db.Model):
+class User(db.Model, SerializerMixin):
     __tablename__ = "users"
+    serializer_rules = ("-reviews.user",)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
